@@ -13,7 +13,7 @@
     "express": "^4.16.3",
     "jsonwebtoken": "^8.2.1",
     "mongoose": "^5.1.2",
-    "mongoose-unique-validator": "^2.0.1",
+    "mongoose-unique-validator": "^2.0.1"
   },
   "devDependencies": {
    
@@ -22,7 +22,7 @@
     "jasmine-core": "~2.99.1",
     "jasmine-spec-reporter": "~4.2.1",
     "nodemon": "^1.17.4",
-    "protractor": "~5.3.0",
+    "protractor": "~5.3.0"
    
   }
 }
