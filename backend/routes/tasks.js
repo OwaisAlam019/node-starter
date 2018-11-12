@@ -24,4 +24,21 @@ router.post("/add",(req,res,nect) => {
     })
 })
 
+router.post("/update",(req,res,nect) => {
+    Tasks.findById({id:req.body.taskId},(err,task) => {
+        task.title = req.body.title;
+        task.description = req.body.description;
+        task.save(task).then(result => {
+            res.status(200).json({
+                message:"Task updated"
+            });
+        })
+    })
+    .catch(err=>{
+        res.status(500).json({
+            message:"could not add task"
+        })
+    })
+})
+
 module.exports = router;
