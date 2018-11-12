@@ -7,15 +7,7 @@ const nodemailer = require('nodemailer');
 var sgTransport = require('nodemailer-sendgrid-transport'); // Import Nodemailer Sengrid Transport Package
 const router = express.Router();
 
-// var options = {
-//   auth: {
-//     api_user: 'themeanstack', // Sendgrid username
-//     api_key: 'PAssword123!@#' // Sendgrid password
-//   }
-// }
 // var client = nodemailer.createTransport(sgTransport(options));
-
-
 
 router.get("/",(req,res)=>{res.send("Welcome to user API")});
 router.post("/signup", (req,res,next) => {
@@ -84,6 +76,8 @@ router.post("/forgotPassword",(req,res,next) => {
       user.save().then( result =>{
       console.log("saved",result)
         if (err){return res.status(401).json({message:"Token expired"})}
+        // Code for sending email to the user
+        // currently reset link is beign sent as response to the api call
        return res.status(200).json({
           resetLink:"localhost/3000/api/user/reset/"+user.resetToken
         });
@@ -92,15 +86,31 @@ router.post("/forgotPassword",(req,res,next) => {
   })
 });
 router.get("/reset/:token",(req,res,next) => {
+  console.log("Token reset")
   User.findOne({resetToken:req.params.token},(err,user) => {
+    console.log(err)
     if(err) return res.status(401).json({message:"User not found"})
     var token = req.params.token;
-    jwt.verify(token,"long_secret_key",(err,decode) => {
+    if(req.body.password){
+      console.log("Changing")
+      bcrypt.hash(req.body.password, 10).then(hash => {
+        user.password = hash;
+        user.resetToken='';
+      });
+      user.save().then(result => {
+        return res.status(200).json({
+          message:"Password changed successfully"
+        })
+      })
+    }
+    else{ 
+      console.log("Verifying")
+      jwt.verify(token,"long_secret_key",(err,decode) => {
       if (err)  return res.status(401).json({message:"Token expired"})
-      res.status(200).json({userData:user})
-    })
+      return res.status(200).json({userData:user})
+    });
+  }
   });
-
 });
 
 module.exports = router;
