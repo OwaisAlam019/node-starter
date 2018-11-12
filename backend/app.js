@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 const userRoutes = require("./routes/user");
+const taskRoutes = require("./routes/tasks");
 
 const app = express();
 
@@ -37,5 +38,7 @@ app.use((req, res, next) => {
 app.get("/",(req,res)=>{res.send("Welcome to app")})
 
 app.use("/api/user", userRoutes);
+app.use("/api/tasks", taskRoutes);
+
 
 module.exports = app;

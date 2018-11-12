@@ -1,6 +1,5 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
-var bodyParser = require('body-parser')
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const nodemailer = require('nodemailer');
