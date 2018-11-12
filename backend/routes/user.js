@@ -3,8 +3,21 @@ const bcrypt = require("bcrypt");
 var bodyParser = require('body-parser')
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const nodemailer = require('nodemailer');
+var sgTransport = require('nodemailer-sendgrid-transport'); // Import Nodemailer Sengrid Transport Package
 const router = express.Router();
 
+// var options = {
+//   auth: {
+//     api_user: 'themeanstack', // Sendgrid username
+//     api_key: 'PAssword123!@#' // Sendgrid password
+//   }
+// }
+// var client = nodemailer.createTransport(sgTransport(options));
+
+
+
+router.get("/",(req,res)=>{res.send("Welcome to user API")});
 router.post("/signup", (req,res,next) => {
   console.log("ping",req.body);
   bcrypt.hash(req.body.password, 10).then(hash => {
@@ -58,6 +71,36 @@ router.post("/login",(req,res,next)=>{
     console.log("catch error",err)
    return res.status(401).json({Error:err})
   })
+});
+
+router.post("/forgotPassword",(req,res,next) => {
+  User.findOne({email:req.body.email},(err,user)=>{
+    console.log(user);
+    if(err) throw err
+    user.resetToken = jwt.sign({email:user.email,userId:user._id},
+      "long_secret_key",
+      {expiresIn:"1h"});
+
+      user.save().then( result =>{
+      console.log("saved",result)
+        if (err){return res.status(401).json({message:"Token expired"})}
+       return res.status(200).json({
+          resetLink:"localhost/3000/api/user/reset/"+user.resetToken
+        });
+      
+    })
+  })
+});
+router.get("/reset/:token",(req,res,next) => {
+  User.findOne({resetToken:req.params.token},(err,user) => {
+    if(err) return res.status(401).json({message:"User not found"})
+    var token = req.params.token;
+    jwt.verify(token,"long_secret_key",(err,decode) => {
+      if (err)  return res.status(401).json({message:"Token expired"})
+      res.status(200).json({userData:user})
+    })
+  });
+
 });
 
 module.exports = router;
